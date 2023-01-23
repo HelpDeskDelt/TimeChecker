@@ -8,107 +8,124 @@ import os
 
 
 def createCSV():
+    try:
+        print(" + Read & Create CSV Files")
+        if os.path.exists("Empleado.csv"):
+            os.remove("Empleado.csv")
 
-    if os.path.exists("Empleado.csv"):
-        os.remove("Empleado.csv")
+        if os.path.exists("Evento.csv"):
+            os.remove("Evento.csv")
 
-    if os.path.exists("Evento.csv"):
-        os.remove("Evento.csv")
+        if os.path.exists("EmpleadoHorario.csv"):
+            os.remove("EmpleadoHorario.csv")
 
-    if os.path.exists("EmpleadoHorario.csv"):
-        os.remove("EmpleadoHorario.csv")
+        for i in [1,2,3]:
+            #EMPLEADO
+            if i == 1:            
+                # connEm = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};" + r"Dbq=R:\datos.mdb;")
+                connEm = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};" + r"Dbq=\\192.168.0.250\TimeWork\datos.mdb;")
+                cursEm = connEm.cursor()
+                SQL = 'SELECT ID, Numero, Nombre, Apellidos, Clave FROM Empleado;' # insert your query here
+                cursEm.execute(SQL)
+                rows = cursEm.fetchall()
+                cursEm.close()
+                connEm.close()
+                csv_writerEm = csv.writer(open('Empleado.csv', 'a'), lineterminator='\n')
+                for row in rows:
+                    csv_writerEm.writerow(row)
+                print("     - ✔️File Empleado.csv created")
 
-    for i in [1,2,3]:
-        #EMPLEADO
-        if i == 1:
-            print("No funciona lectura de empleado")
-            # connEmpleado = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};" + r"Dbq=R:\datos.mdb;")
-            # connEmpleado.setdecoding(pyodbc.SQL_CHAR, encoding='utf8')
-            # connEmpleado.setdecoding(pyodbc.SQL_WCHAR, encoding='utf8')
-            # connEmpleado.setencoding(encoding='utf8')
+            #EVENTO
+            if i == 2:
+                connEvento = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};" + r"Dbq=\\192.168.0.250\TimeWork\datos.mdb;")
+                cursEvento = connEvento.cursor()
+                SQL = 'SELECT ID, IDEmpleado, Entrada, Salida, TeMinimo, IDSucursalFuente, IDRowEnSucursalFuente FROM Evento;' # insert your query here
+                cursEvento.execute(SQL)
+                rows = cursEvento.fetchall()
+                cursEvento.close()
+                connEvento.close()
+                csv_writerEvento = csv.writer(open('Evento.csv', 'a'), lineterminator='\n')
+                for row in rows:
+                    csv_writerEvento.writerow(row)
+                print("     - ✔️File Evento.csv created")
 
-            # cursEmopleado = connEmpleado.cursor()
-            # SQL = 'SELECT * FROM Empleado;' # insert your query here
-            # cursEmopleado.execute(SQL)
-            # rows = cursEmopleado.fetchall()
-            # cursEmopleado.close()
-            # connEmpleado.close()
-            # csv_writerEmpleado = csv.writer(open('Empleado.csv', 'a'), lineterminator='\n')
-            # for row in rows:
-            #     csv_writerEmpleado.writerow(row)
-                # csv_writerEmpleado.writerow(repr(row))
-
-        #EVENTO
-        if i == 2:
-            connEvento = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};" + r"Dbq=R:\datos.mdb;")
-            cursEvento = connEvento.cursor()
-            SQL = 'SELECT * FROM Evento;' # insert your query here
-            cursEvento.execute(SQL)
-            rows = cursEvento.fetchall()
-            cursEvento.close()
-            connEvento.close()
-            csv_writerEvento = csv.writer(open('Evento.csv', 'a'), lineterminator='\n')
-            for row in rows:
-                csv_writerEvento.writerow(row)
-
-        #EMPLEADOHORARIO
-        if i == 3:
-            connEmpleadoH = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};" + r"Dbq=R:\datos.mdb;")
-            cursEmpleadoH = connEmpleadoH.cursor()
-            SQLE = 'SELECT * FROM EmpleadoHorario;' # insert your query here
-            cursEmpleadoH.execute(SQLE)
-            rows = cursEmpleadoH.fetchall()
-            cursEmpleadoH.close()
-            connEmpleadoH.close()
-            csv_writerEmpleadoHorario = csv.writer(open('EmpleadoHorario.csv', 'a'), lineterminator='\n')
-            for row in rows:
-                csv_writerEmpleadoHorario.writerow(row)
+            #EMPLEADOHORARIO
+            if i == 3:
+                connEmpleadoH = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};" + r"Dbq=\\192.168.0.250\TimeWork\datos.mdb;")
+                cursEmpleadoH = connEmpleadoH.cursor()
+                SQLE = 'SELECT * FROM EmpleadoHorario;' # insert your query here
+                cursEmpleadoH.execute(SQLE)
+                rows = cursEmpleadoH.fetchall()
+                cursEmpleadoH.close()
+                connEmpleadoH.close()
+                csv_writerEmpleadoHorario = csv.writer(open('EmpleadoHorario.csv', 'a'), lineterminator='\n')
+                for row in rows:
+                    csv_writerEmpleadoHorario.writerow(row)
+                print("     - ✔️File EmpleadoHorario.csv created")
+    except:
+        print(" ⚠️ Something is wrong, TimeChecker is Open ⚠️")
 
 def deleteTables():
-
+    print(" + Delete data from Intranet Tables")
     for i in [1,2,3]:
+        #Evento
         if i == 1:
             connectionEv = pymssql.connect(server='192.168.0.206', user='sa', password='Sql@dmin1', database='INTRANET')
-            deleteEvento = "DELETE FROM H_Evento"
+            deleteEvento = "DELETE FROM A_Evento"
             cursorEvento = connectionEv.cursor()
             cursorEvento.execute(deleteEvento)
             connectionEv.commit()
-            print(" - Datos de Evento eliminado")
+            print("     - ✔️Data from Evento removed")
+        #Empleado
         if i == 2:
             connectionEm = pymssql.connect(server='192.168.0.206', user='sa', password='Sql@dmin1', database='INTRANET')
-            deleteEmpleado = "DELETE FROM H_Empleado"
+            deleteEmpleado = "DELETE FROM A_Empleado"
             cursorEmpleado = connectionEm.cursor()
             cursorEmpleado.execute(deleteEmpleado)
-            connectionEm.commit()
-            
-            print(" - Datos de Empleado eliminado")
+            connectionEm.commit()            
+            print("     - ✔️Data from Empleado removed")
+        #EmpleadoHorario
         if i == 3:
             connectionEH = pymssql.connect(server='192.168.0.206', user='sa', password='Sql@dmin1', database='INTRANET')    
             deleteEH = "DELETE FROM H_EmpleadoHorario"        
             cursorEH = connectionEH.cursor()
             cursorEH.execute(deleteEH)
             connectionEH.commit()
-            print(" - Datos de EmpleadoHorario eliminado")
+            print("     - ✔️Data from EmpleadoHorario removed")
 
 def writeDatabase():
+    print(" + Save Data in Intranet DataBase")
     for i in [1,2,3]:
-        if i == 1:            
-            print(" - Informacion guardada en la tabla Empleado")
+        #Empleado
+        if i ==1:                        
+            connectionEm = pymssql.connect(server='192.168.0.206', user='sa', password='Sql@dmin1', database='INTRANET')    
 
-        if i == 2:
-            # connectionEventos = pymssql.connect(server='192.168.0.206', user='sa', password='Sql@dmin1', database='INTRANET')    
+            with open('Empleado.csv', 'r') as fileEv:
+                readerEm = csv.reader(fileEv)
+                columnsEm = next(readerEm)    
+                # queryEm = 'INSERT INTO H_Empleado values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+                queryEm = 'INSERT INTO A_Empleado values (%s, %s, %s, %s, %s)'
+                cursorEm = connectionEm.cursor()
 
-            # with open('Evento.csv', 'r') as fileEv:
-            #     readerEv = csv.reader(fileEv)
-            #     columnsEv = next(readerEv)    
-            #     queryEv = 'INSERT INTO H_Evento values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
-            #     cursorEv = connectionEventos.cursor()
+                for data in readerEm:
+                    cursorEm.execute(queryEm, tuple(data))
+                    connectionEm.commit()
+            print("     - ✔️Data saved in Empleado ")            
+        #Evento
+        if i == 2:            
+            connectionEventos = pymssql.connect(server='192.168.0.206', user='sa', password='Sql@dmin1', database='INTRANET')    
 
-            #     for data in readerEv:
-            #         cursorEv.execute(queryEv, tuple(columnsEv))
-            #         connectionEventos.commit()
-            print(" - Informacion guardada en la tabla Evento")
+            with open('Evento.csv', 'r') as fileEv:
+                readerEv = csv.reader(fileEv)
+                columnsEv = next(readerEv)    
+                queryEv = 'INSERT INTO A_Evento values (%s,%s,%s,%s,%s,%s,%s)'
+                cursorEv = connectionEventos.cursor()
 
+                for data in readerEv:
+                    cursorEv.execute(queryEv, tuple(data))
+                    connectionEventos.commit()
+            print("     - ✔️Data saved in Evento")
+        #EmpladoHorario
         if i == 3:
             connectionEH = pymssql.connect(server='192.168.0.206', user='sa', password='Sql@dmin1', database='INTRANET')    
 
@@ -120,9 +137,9 @@ def writeDatabase():
                 cursorEH = connectionEH.cursor()
 
                 for data in readerEH:
-                    cursorEH.execute(queryEH, tuple(columnsEH))
+                    cursorEH.execute(queryEH, tuple(data))
                     connectionEH.commit()
-            print(" - Informacion guardada en la tabla EmpleadoHorario")
+            print("     - ✔️Data saved in EmpleadoHorario")
     
 
 def main():
@@ -132,8 +149,8 @@ def main():
     
 
 if __name__ == "__main__":
-    print("***Iniciando Rutina para creacion de reporte de TimeChecker")
+    print("**** Start ****")
     main()
-    print("***Rutina Finalizada")
+    print("**** End ****")
 
 

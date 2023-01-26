@@ -6,6 +6,7 @@ from meza import io
 import os
 import pathlib
 import shutil
+from sqlalchemy import create_engine
 
 #Copy the database from //192.168.0.250/TimeWork/datos.md to R:\TimeWork\
 #dont need turn of the app TimeWork
@@ -14,16 +15,18 @@ def copyDataBaseTime():
         print(" + Try to get datos.mdb from TimeWork PC")
 
         #need to know if exist the data base. If exist delete, this way can get the last database from TimeWork PC
-        if os.path.exists("R:\TimeWork\datos.mdb"):
-            os.remove("R:\TimeWork\datos.mdb")
-        
+        if os.path.exists("R:\SAP\datos.mdb"):
+            os.remove("R:\SAP\datos.mdb")
+            
+        # timeWork = pathlib.Path("//192.168.0.250/TimeWork/datos.mdb") #patch from database
         timeWork = pathlib.Path("//192.168.0.250/TimeWork/datos.mdb") #patch from database
-        servidorR = pathlib.Path("R:\TimeWork") #place to copy
-        
+        servidorR = pathlib.Path("R:\SAP") #place to copy
+            
         shutil.copy(timeWork, servidorR)  # For Python 3.8+.
         print("     - ✔️  Succeeded")
-    except:
-        print("Cant Copy the file")
+
+    except:        
+        print(" ⚠️ Cant Copy the DataBase, check the connection IP ⚠️")
 
 #get te data from R:\TimeWork\datos.mdb and create 3 CSV files (Empleado, Evento, EmpleadoHorario).
 def createCSV():
@@ -41,7 +44,7 @@ def createCSV():
         for i in [1,2,3]:
             #EMPLEADO
             if i == 1:                            
-                connEm = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};" + r"Dbq=R:\TimeWork\datos.mdb;")
+                connEm = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};" + r"Dbq=R:\SAP\datos.mdb;")
                 cursEm = connEm.cursor()
                 SQL = 'SELECT ID, Numero, Nombre, Apellidos, Clave FROM Empleado;' # insert your query here
                 cursEm.execute(SQL)
@@ -55,7 +58,7 @@ def createCSV():
 
             #EVENTO
             if i == 2:
-                connEvento = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};" + r"Dbq=R:\TimeWork\datos.mdb;")
+                connEvento = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};" + r"Dbq=R:\SAP\datos.mdb;")
                 cursEvento = connEvento.cursor()
                 SQL = 'SELECT ID, IDEmpleado, Entrada, Salida, TeMinimo, IDSucursalFuente, IDRowEnSucursalFuente FROM Evento;' # insert your query here
                 cursEvento.execute(SQL)
@@ -69,7 +72,7 @@ def createCSV():
 
             #EMPLEADOHORARIO
             if i == 3:
-                connEmpleadoH = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};" + r"Dbq=R:\TimeWork\datos.mdb;")
+                connEmpleadoH = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};" + r"Dbq=R:\SAP\datos.mdb;")
                 cursEmpleadoH = connEmpleadoH.cursor()
                 SQLE = 'SELECT * FROM EmpleadoHorario;' # insert your query here
                 cursEmpleadoH.execute(SQLE)
@@ -159,20 +162,13 @@ def writeDatabase():
                     connectionEH.commit()
             print("     - ✔️  Data saved in EmpleadoHorario")
 
-#this dont work is only the name declaration to have a structure for the future
-def sendEmails():
-    print("+ Sending Mails")
-
-
 #The main method is create for have a run order, this mean always start with CopyDataBaseTime() and finish with sendEmalils
 def main():
     copyDataBaseTime()
     createCSV()
     deleteTables()
     writeDatabase()
-    sendEmails()
     
-
 #Here is only for call and inicialize the main method
 if __name__ == "__main__":
     print("**** Start ****")
